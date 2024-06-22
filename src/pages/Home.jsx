@@ -105,6 +105,7 @@ const Home = () => {
             console.error('Error fetching weather data:', error);
         }
     };
+    //https://www.weatherapi.com/docs/conditions.json
 
     return (
         <>
@@ -116,6 +117,7 @@ const Home = () => {
                             <Typography variant="h3">{weatherData.location.name}</Typography>
                             <Typography variant="h4">{weatherData.temperature}°C</Typography>
                             <Typography variant="h6">{weatherData.conditions}</Typography>
+                            <Typography variant="h6">{weatherData.condition_code}</Typography>
                             <i className={`wi wi-day-sunny ${classes.weatherIcon}`}></i>
                             <Typography variant="h6">{formatTimestamp(weatherData.timestamp)}</Typography>
                         </Box>
