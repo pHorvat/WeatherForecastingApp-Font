@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Box, TextField, Button, Typography, Link } from '@mui/material';
-import { makeStyles } from '@mui/styles';
+import { toast, ToastContainer } from 'react-toastify';
+import { AuthContext } from './AuthContext'; // Adjust the import path as required
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
     const [formData, setFormData] = useState({ username: '', password: '' });
     const navigate = useNavigate();
+    const { fetchUserData } = useContext(AuthContext);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -20,8 +23,10 @@ const Login = () => {
             const { jwtToken, isAdmin } = response.data;
             localStorage.setItem('token', jwtToken);
             localStorage.setItem('isAdmin', isAdmin);
+            await fetchUserData();
             isAdmin ? navigate('/dashboard') : navigate('/');
         } catch (error) {
+            toast.error(error.message);
             console.error('Login error:', error);
         }
     };
@@ -32,7 +37,8 @@ const Login = () => {
 
     return (
         <Container>
-            <Box component="form"  onSubmit={handleSubmit}>
+            <ToastContainer />
+            <Box component="form" onSubmit={handleSubmit}>
                 <Typography variant="h4" gutterBottom>
                     Login
                 </Typography>

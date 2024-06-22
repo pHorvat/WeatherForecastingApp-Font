@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Box, TextField, Button, Typography, Link } from '@mui/material';
+import {toast, ToastContainer} from "react-toastify";
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -30,6 +31,7 @@ const Register = () => {
             await axios.post('http://localhost:4449/auth/register', formData);
             navigate('/login');
         } catch (error) {
+            toast.error(error.message)
             console.error('Registration error:', error);
         }
     };
@@ -40,6 +42,7 @@ const Register = () => {
 
     return (
         <Container>
+            <ToastContainer/>
             <Box component="form" onSubmit={handleSubmit}>
                 <Typography variant="h4" gutterBottom>
                     Register
