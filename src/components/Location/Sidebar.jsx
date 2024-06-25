@@ -1,10 +1,9 @@
-// src/components/Location/Sidebar.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, List, ListItem, ListItemText, Paper } from '@mui/material';
+import { Box, List, ListItem, ListItemText, Paper, FormControl, Select, MenuItem, InputLabel } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
     sidebar: {
         height: 'calc(100vh - 64px)', // Adjust height to account for header
         width: '300px',
@@ -14,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
         top: 0,
         overflowY: 'auto',
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        boxShadow: theme.shadows[5],
+        boxShadow: '0px 3px 6px #00000029',
         '&::-webkit-scrollbar': {
             width: '8px',
         },
@@ -30,18 +29,28 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     cityCard: {
-        margin: theme.spacing(2),
-        padding: theme.spacing(2),
+        margin: '16px',
+        padding: '16px',
         cursor: 'pointer',
     },
     selectedCard: {
         border: '2px solid #007BFF'
     },
-}));
+    dropdownContainer: {
+        margin: '16px',
+        display: 'flex',
+        justifyContent: 'center',
+    },
+    dropdown: {
+        width: '100%',
+    },
+});
 
 const Sidebar = ({ onSelectCity, userLocationId }) => {
     const classes = useStyles();
     const [cities, setCities] = useState([]);
+    const [countries, setCountries] = useState([]);
+    const [selectedCountry, setSelectedCountry] = useState('');
 
     useEffect(() => {
         const fetchCitiesData = async () => {
@@ -62,6 +71,12 @@ const Sidebar = ({ onSelectCity, userLocationId }) => {
 
                 const citiesWithWeather = await Promise.all(weatherPromises);
                 setCities(citiesWithWeather);
+
+                // Extract countries from the locations
+                const uniqueCountries = [
+                    ...new Set(citiesWithWeather.map(city => city.country))
+                ];
+                setCountries(uniqueCountries);
             } catch (error) {
                 console.error('Error fetching locations or weather data:', error);
             }
@@ -70,10 +85,37 @@ const Sidebar = ({ onSelectCity, userLocationId }) => {
         fetchCitiesData();
     }, []);
 
+    const handleCountryChange = (event) => {
+        setSelectedCountry(event.target.value);
+    };
+
+    const filteredCities = selectedCountry
+        ? cities.filter(city => city.country === selectedCountry)
+        : cities;
+
     return (
         <Box className={classes.sidebar}>
+            <Box className={classes.dropdownContainer}>
+                <FormControl className={classes.dropdown}>
+                    <InputLabel>Country</InputLabel>
+                    <Select
+                        value={selectedCountry}
+                        onChange={handleCountryChange}
+                        label="Country"
+                    >
+                        <MenuItem value="">
+                            <em>All Cities</em>
+                        </MenuItem>
+                        {countries.map((country) => (
+                            <MenuItem key={country} value={country}>
+                                {country}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </Box>
             <List>
-                {cities.map((city) => (
+                {filteredCities.map((city) => (
                     <Paper
                         key={city.id}
                         className={`${classes.cityCard} ${userLocationId === city.id ? classes.selectedCard : ''}`}

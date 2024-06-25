@@ -143,8 +143,7 @@ const Home = () => {
                         <Box textAlign="center" my={4}>
                             <Typography variant="h3">{weatherData.location.name}</Typography>
                             <Typography variant="h4">{weatherData.temperature}°C</Typography>
-                            <Typography variant="h6">{weatherData.conditions}</Typography>
-                            <Typography variant="h6">{weatherData.condition_code}</Typography>
+                            <Typography variant="h6">{t(weatherData.condition_code)}</Typography>
                             <i className={`wi wi-day-sunny ${classes.weatherIcon}`}></i>
                             <Typography variant="h6">{formatTimestamp(weatherData.timestamp)}</Typography>
                         </Box>
@@ -159,8 +158,7 @@ const Home = () => {
                                         <Typography >Max Temp: {forecast.temp_max}°C</Typography>
                                         <Typography >Min Temp: {forecast.temp_min}°C</Typography>
                                         <Typography >Chance of Rain: {forecast.chance_of_rain}%</Typography>
-                                        <Typography >Conditions: {forecast.conditions}</Typography>
-                                        <Typography >Conditions code: {forecast.condition_code}</Typography>
+                                        <Typography >Conditions: {t(forecast.condition_code)}</Typography>
                                     </Box>
                                 ))}
                             </Box>
