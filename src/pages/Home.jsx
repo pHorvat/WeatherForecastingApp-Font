@@ -6,6 +6,11 @@ import { format } from 'date-fns';
 import Sidebar from '../components/Location/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import {useTranslation} from "react-i18next";
+import ReactTimeAgo from "react-time-ago";
+import i18n from "i18next";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCloudRain, faCloudSunRain, faTemperatureHigh, faTemperatureLow} from "@fortawesome/free-solid-svg-icons";
+import backgroundImage from '../pexels-brett-sayles-1431822.jpg';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -55,6 +60,21 @@ const Home = () => {
     const [selectedLocation, setSelectedLocation] = useState('');
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const [langLocale, setLangLocale] = useState('en');
+
+    useEffect(() => {
+        document.body.style.backgroundImage = `url(${backgroundImage})`;
+        document.body.style.backgroundSize = 'cover';
+        //document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+
+        return () => {
+            document.body.style.backgroundImage = '';
+            document.body.style.backgroundSize = '';
+            document.body.style.backgroundPosition = '';
+            document.body.style.backgroundRepeat = '';
+        };
+    }, []);
 
     const fetchUserData = async () => {
         const token = localStorage.getItem('token');
@@ -71,7 +91,7 @@ const Home = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setWeatherData(weatherResponse.data);
-                await fetchForecastData(location.id); // Fetch forecast data after setting user location
+                await fetchForecastData(location.id);
             }
         } catch (error) {
             navigate('/login');
@@ -111,11 +131,6 @@ const Home = () => {
         }
     };
 
-    const formatTimestamp = (timestamp) => {
-        const date = new Date(timestamp);
-        return format(date, 'PPPpp'); // Customize the format string if required
-    };
-
     const handleSelectCity = (locationId) => {
         setSelectedLocation(locationId);
         fetchWeatherData(locationId);
@@ -134,6 +149,19 @@ const Home = () => {
         }
     };
 
+    useEffect(() => {
+        const handleLanguageChange = (lng) => {
+            console.log("Language changed to:", lng);
+            setLangLocale(lng);
+        };
+
+        i18n.on('languageChanged', handleLanguageChange);
+
+        return () => {
+            i18n.off('languageChanged', handleLanguageChange);
+        };
+    }, [i18n]);
+
     return (
         <>
             <Sidebar onSelectCity={handleSelectCity} userLocationId={userLocation?.id} />
@@ -144,21 +172,21 @@ const Home = () => {
                             <Typography variant="h3">{weatherData.location.name}</Typography>
                             <Typography variant="h4">{weatherData.temperature}°C</Typography>
                             <Typography variant="h6">{t(weatherData.condition_code)}</Typography>
-                            <i className={`wi wi-day-sunny ${classes.weatherIcon}`}></i>
-                            <Typography variant="h6">{formatTimestamp(weatherData.timestamp)}</Typography>
+                            <ReactTimeAgo date={weatherData.timestamp} locale={langLocale}/>
                         </Box>
                     )}
                     {forecastData.length > 0 && (
                         <Box textAlign="center" my={4}>
-                            <Typography variant="h4" gutterBottom>Forecast</Typography>
+                            <Typography variant="h4" gutterBottom>{t('forecast')}</Typography>
                             <Box className={classes.forecastContainer}>
                                 {forecastData.map((forecast) => (
                                     <Box key={forecast.id} className={classes.forecastBox}>
-                                        <Typography >{format(new Date(forecast.forecast_date), 'PPP')}</Typography>
-                                        <Typography >Max Temp: {forecast.temp_max}°C</Typography>
-                                        <Typography >Min Temp: {forecast.temp_min}°C</Typography>
-                                        <Typography >Chance of Rain: {forecast.chance_of_rain}%</Typography>
-                                        <Typography >Conditions: {t(forecast.condition_code)}</Typography>
+                                        <Typography variant="h6" style={{textTransform: 'capitalize'}} >{new Date(forecast.forecast_date).toLocaleString(langLocale, { weekday: "long" })}</Typography>
+                                        <Typography >{format(new Date(forecast.forecast_date), 'dd.M.yyyy.')}</Typography>
+                                        <Typography ><FontAwesomeIcon icon={faTemperatureHigh} /> {forecast.temp_max}°C</Typography>
+                                        <Typography ><FontAwesomeIcon icon={faTemperatureLow} /> {forecast.temp_min}°C</Typography>
+                                        <Typography ><FontAwesomeIcon icon={faCloudRain} /> {forecast.chance_of_rain}%</Typography>
+                                        <Typography ><FontAwesomeIcon icon={faCloudSunRain} /> {t(forecast.condition_code)}</Typography>
                                     </Box>
                                 ))}
                             </Box>
@@ -171,7 +199,7 @@ const Home = () => {
                             onClick={handleUpdateLocation}
                             className={classes.button}
                             fullWidth>
-                            Set My Location
+                            {t('set_my_location')}
                         </Button>
                     )}
                 </Container>

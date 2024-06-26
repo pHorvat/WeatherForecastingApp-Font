@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, List, ListItem, ListItemText, Paper, FormControl, Select, MenuItem, InputLabel } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+import {useTranslation} from "react-i18next";
 
 const useStyles = makeStyles({
     sidebar: {
-        height: 'calc(100vh - 64px)', // Adjust height to account for header
+        height: 'calc(100vh - 64px)',
         width: '300px',
-        marginTop: '64px', // Push down below header
+        marginTop: '64px',
         position: 'fixed',
         left: 0,
         top: 0,
@@ -51,6 +52,7 @@ const Sidebar = ({ onSelectCity, userLocationId }) => {
     const [cities, setCities] = useState([]);
     const [countries, setCountries] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState('');
+    const { t } = useTranslation();
 
     useEffect(() => {
         const fetchCitiesData = async () => {
@@ -97,14 +99,14 @@ const Sidebar = ({ onSelectCity, userLocationId }) => {
         <Box className={classes.sidebar}>
             <Box className={classes.dropdownContainer}>
                 <FormControl className={classes.dropdown}>
-                    <InputLabel>Country</InputLabel>
+                    <InputLabel>{t('country')}</InputLabel>
                     <Select
                         value={selectedCountry}
                         onChange={handleCountryChange}
-                        label="Country"
+                        label={t('country')}
                     >
                         <MenuItem value="">
-                            <em>All Cities</em>
+                            <em>{t('all_cities')}</em>
                         </MenuItem>
                         {countries.map((country) => (
                             <MenuItem key={country} value={country}>
@@ -127,7 +129,7 @@ const Sidebar = ({ onSelectCity, userLocationId }) => {
                                 primary={city.name}
                                 secondary={
                                     city.weather
-                                        ? `${city.weather.temperature}°C - ${city.weather.conditions}`
+                                        ? `${city.weather.temperature}°C - ${t(city.weather.condition_code)}`
                                         : 'Loading...'
                                 }
                             />

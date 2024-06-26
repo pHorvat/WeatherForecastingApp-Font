@@ -21,6 +21,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
+import {useTranslation} from "react-i18next";
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -70,15 +71,20 @@ const Dashboard = () => {
     const [selectedUserId, setSelectedUserId] = useState(null);
     const [selectedLocationId, setSelectedLocationId] = useState(null);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
                 const token = localStorage.getItem('token');
+                if (!token){
+                    navigate('/login')
+                }
                 const response = await axios.get('http://localhost:4449/users', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setUsers(response.data);
+                console.log(response.data)
             } catch (error) {
                 console.error('Error fetching users:', error);
             }
@@ -120,6 +126,7 @@ const Dashboard = () => {
     }, []);
 
     const handleDeleteUser = async userId => {
+        console.log(userId)
         try {
             const token = localStorage.getItem('token');
             await axios.delete(`http://localhost:4449/users/${userId}`, {
@@ -134,7 +141,7 @@ const Dashboard = () => {
     const handleDeleteLocation = async locationId => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:4449/locations/${locationId}`, {
+            await axios.delete(`http://localhost:4449/locations/delete/${locationId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setLocations(locations.filter(location => location.id !== locationId));
@@ -207,7 +214,7 @@ const Dashboard = () => {
                 const response = await axios.post('http://localhost:4449/auth/register', newUser, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setUsers([...users, response.data]);
+                setUsers([...users, newUser]);
             }
             setModalOpen(false);
             setName('');
@@ -226,13 +233,13 @@ const Dashboard = () => {
             const token = localStorage.getItem('token');
             if (isEditing) {
                 const updatedLocation = { name: locationName, latitude, longitude, country };
-                await axios.put(`http://localhost:4449/locations/${selectedLocationId}`, updatedLocation, {
+                await axios.put(`http://localhost:4449/locations/update/${selectedLocationId}`, updatedLocation, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setLocations(locations.map(location => location.id === selectedLocationId ? { ...location, ...updatedLocation } : location));
             } else {
                 const newLocation = { name: locationName, latitude, longitude, country };
-                const response = await axios.post('http://localhost:4449/locations', newLocation, {
+                const response = await axios.post('http://localhost:4449/locations/create', newLocation, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setLocations([...locations, response.data]);
@@ -247,37 +254,32 @@ const Dashboard = () => {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/login');
-    };
-
     return (
         <div className={classes.root}>
             <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h6" className={classes.header}>
-                        Dashboard
+                        {t('dashboard')}
                     </Typography>
                 </Toolbar>
             </AppBar>
             <Paper className={classes.paper}>
-                <Typography variant="h5">Users Information</Typography>
+                <Typography variant="h5">{t('user_information')}</Typography>
                 <Button
                     variant="contained"
                     color="primary"
                     startIcon={<AddIcon />}
                     onClick={handleOpenModal}
                 >
-                    Add Admin User
+                    {t('add_admin')}
                 </Button>
                 <List>
                     {users.map(user => (
                         <React.Fragment key={user.id}>
                             <ListItem>
                                 <ListItemText
-                                    primary={`${user.name} ${user.lastName} - Username: ${user.username}`}
-                                    secondary={`Email: ${user.email} - Location: ${user.location_id?.name}, ${user.location_id?.country}`}
+                                    primary={`${user.name} ${user.lastName} - ${t('username')}: ${user.username}`}
+                                    secondary={`${t('email')}: ${user.email} - ${t('location')}: ${user.location_id?.name}, ${user.location_id?.country}`}
                                 />
                                 <ListItemSecondaryAction>
                                     <IconButton edge="end" aria-label="edit" onClick={() => handleOpenEditModal(user)}>
@@ -294,14 +296,14 @@ const Dashboard = () => {
                 </List>
             </Paper>
             <Paper className={classes.paper}>
-                <Typography variant="h5">Locations and Weather</Typography>
+                <Typography variant="h5">{t('locations_weather')}</Typography>
                 <Button
                     variant="contained"
                     color="primary"
                     startIcon={<AddIcon />}
                     onClick={handleOpenLocationModal}
                 >
-                    Add Location
+                    {t('add_location')}
                 </Button>
                 <List>
                     {locations.map(location => (
@@ -310,10 +312,10 @@ const Dashboard = () => {
                                 <ListItemText
                                     primary={location.name}
                                     secondary={`
-                                        Latitude: ${location.latitude}, Longitude: ${location.longitude}, Country: ${location.country}
+                                        ${t('latitude')}: ${location.latitude}, ${t('longitude')}: ${location.longitude}, ${t('country')}: ${location.country}
                                         ${
                                         weather[location.id]
-                                            ? `Weather: Temperature: ${weather[location.id].temperature}°C, Humidity: ${weather[location.id].humidity}%, Precipitation: ${weather[location.id].precipitation}mm, Conditions: ${weather[location.id].conditions}`
+                                            ? `${t('weather')}: ${t('temperature')}: ${weather[location.id].temperature}°C, ${t('humidity')}: ${weather[location.id].humidity}%, ${t('precipitation')}: ${weather[location.id].precipitation}mm, ${t('conditions')}: ${t(weather[location.id].condition_code)} `
                                             : ''
                                     }
                                     `}
@@ -335,12 +337,12 @@ const Dashboard = () => {
             <Modal open={modalOpen} onClose={handleCloseModal}>
                 <Box className={classes.modalBox}>
                     <Typography variant="h6" component="h2">
-                        {isEditing ? 'Edit User' : 'Add New User'}
+                        {isEditing ? t('edit_user') : t('add_admin')}
                     </Typography>
                     <form onSubmit={handleSubmit}>
                         <TextField
                             margin="normal"
-                            label="Name"
+                            label={t('name')}
                             variant="outlined"
                             fullWidth
                             value={name}
@@ -348,7 +350,7 @@ const Dashboard = () => {
                         />
                         <TextField
                             margin="normal"
-                            label="Surname"
+                            label={t('last_name')}
                             variant="outlined"
                             fullWidth
                             value={surname}
@@ -357,7 +359,7 @@ const Dashboard = () => {
                         {!isEditing &&
                             <TextField
                                 margin="normal"
-                                label="Password"
+                                label={t('password')}
                                 type="password"
                                 variant="outlined"
                                 fullWidth
@@ -366,7 +368,7 @@ const Dashboard = () => {
                             />}
                         <TextField
                             margin="normal"
-                            label="Username"
+                            label={t('username')}
                             variant="outlined"
                             fullWidth
                             value={username}
@@ -374,7 +376,7 @@ const Dashboard = () => {
                         />
                         <TextField
                             margin="normal"
-                            label="Email"
+                            label={t('email')}
                             type="email"
                             variant="outlined"
                             fullWidth
@@ -382,7 +384,7 @@ const Dashboard = () => {
                             onChange={e => setEmail(e.target.value)}
                         />
                         <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                            {isEditing ? 'Save Changes' : 'Add User'}
+                            {isEditing ? t("save_changes") : t('add_admin_user')}
                         </Button>
                     </form>
                 </Box>
@@ -390,12 +392,12 @@ const Dashboard = () => {
             <Modal open={locationModalOpen} onClose={handleCloseLocationModal}>
                 <Box className={classes.modalBox}>
                     <Typography variant="h6" component="h2">
-                        {isEditing ? 'Edit Location' : 'Add New Location'}
+                        {isEditing ? t('edit_location') : t('add_location')}
                     </Typography>
                     <form onSubmit={handleLocationSubmit}>
                         <TextField
                             margin="normal"
-                            label="Location Name"
+                            label={t('location_name')}
                             variant="outlined"
                             fullWidth
                             value={locationName}
@@ -403,7 +405,7 @@ const Dashboard = () => {
                         />
                         <TextField
                             margin="normal"
-                            label="Latitude"
+                            label={t("latitude")}
                             variant="outlined"
                             fullWidth
                             value={latitude}
@@ -411,7 +413,7 @@ const Dashboard = () => {
                         />
                         <TextField
                             margin="normal"
-                            label="Longitude"
+                            label={t("longitude")}
                             variant="outlined"
                             fullWidth
                             value={longitude}
@@ -419,14 +421,14 @@ const Dashboard = () => {
                         />
                         <TextField
                             margin="normal"
-                            label="Country"
+                            label={t('country')}
                             variant="outlined"
                             fullWidth
                             value={country}
                             onChange={e => setCountry(e.target.value)}
                         />
                         <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                            {isEditing ? 'Save Changes' : 'Add Location'}
+                            {isEditing ? t('edit_location') : t('save_changes')}
                         </Button>
                     </form>
                 </Box>

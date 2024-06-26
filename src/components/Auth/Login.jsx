@@ -3,13 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Box, TextField, Button, Typography, Link } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
-import { AuthContext } from './AuthContext'; // Adjust the import path as required
+import { AuthContext } from './AuthContext';
 import 'react-toastify/dist/ReactToastify.css';
+import {useTranslation} from "react-i18next";
 
 const Login = () => {
     const [formData, setFormData] = useState({ username: '', password: '' });
     const navigate = useNavigate();
     const { fetchUserData } = useContext(AuthContext);
+    const { t } = useTranslation();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -40,10 +42,10 @@ const Login = () => {
             <ToastContainer />
             <Box component="form" onSubmit={handleSubmit}>
                 <Typography variant="h4" gutterBottom>
-                    Login
+                    {t("login")}
                 </Typography>
                 <TextField
-                    label="Username"
+                    label={t('username')}
                     type="text"
                     id="username"
                     name="username"
@@ -54,7 +56,7 @@ const Login = () => {
                     margin="normal"
                 />
                 <TextField
-                    label="Password"
+                    label={t("password")}
                     type="password"
                     id="password"
                     name="password"
@@ -65,10 +67,10 @@ const Login = () => {
                     margin="normal"
                 />
                 <Button variant="contained" color="primary" type="submit" fullWidth>
-                    Login
+                    {t("login")}
                 </Button>
                 <Link component="button" variant="body2" onClick={handleRegisterRedirect}>
-                    Register
+                    {t("register")}
                 </Link>
             </Box>
         </Container>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Select, MenuItem, FormControl } from '@mui/material';
 
 const LanguageSwitcher = ({ style }) => {
     const { i18n } = useTranslation();

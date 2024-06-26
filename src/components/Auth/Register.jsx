@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Box, TextField, Button, Typography, Link } from '@mui/material';
 import {toast, ToastContainer} from "react-toastify";
+import {useTranslation} from "react-i18next";
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -11,11 +12,11 @@ const Register = () => {
         username: '',
         email: '',
         password: '',
-        confirmPassword: '',
         isAdmin: false,
     });
 
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -45,10 +46,10 @@ const Register = () => {
             <ToastContainer/>
             <Box component="form" onSubmit={handleSubmit}>
                 <Typography variant="h4" gutterBottom>
-                    Register
+                    {t("register")}
                 </Typography>
                 <TextField
-                    label="Name"
+                    label={t("name")}
                     type="text"
                     id="name"
                     name="name"
@@ -59,7 +60,7 @@ const Register = () => {
                     margin="normal"
                 />
                 <TextField
-                    label="Surname"
+                    label={t("last_name")}
                     type="text"
                     id="surname"
                     name="surname"
@@ -70,7 +71,7 @@ const Register = () => {
                     margin="normal"
                 />
                 <TextField
-                    label="Username"
+                    label={t("username")}
                     type="text"
                     id="username"
                     name="username"
@@ -81,7 +82,7 @@ const Register = () => {
                     margin="normal"
                 />
                 <TextField
-                    label="Email"
+                    label={t("email")}
                     type="email"
                     id="email"
                     name="email"
@@ -92,7 +93,7 @@ const Register = () => {
                     margin="normal"
                 />
                 <TextField
-                    label="Password"
+                    label={t("password")}
                     type="password"
                     id="password"
                     name="password"
@@ -102,22 +103,11 @@ const Register = () => {
                     fullWidth
                     margin="normal"
                 />
-                <TextField
-                    label="Confirm Password"
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    required
-                    fullWidth
-                    margin="normal"
-                />
                 <Button variant="contained" color="primary" type="submit" fullWidth>
-                    Register
+                    {t("register")}
                 </Button>
                 <Link component="button" variant="body2" onClick={handleLoginRedirect}>
-                    Login
+                    {t("login")}
                 </Link>
             </Box>
         </Container>

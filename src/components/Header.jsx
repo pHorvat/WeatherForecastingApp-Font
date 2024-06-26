@@ -49,7 +49,7 @@ const Header = () => {
                                 {user.username}
                             </Button>
                             <Button color="inherit" onClick={handleLogout}>
-                                Logout
+                                {t('logout')}
                             </Button>
                         </>
                     )}

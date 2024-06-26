@@ -9,6 +9,16 @@ import Header from "./components/Header.jsx";
 import {AuthProvider} from "./components/Auth/AuthContext.jsx";
 import Profile from "./pages/Profile.jsx";
 import './i18n';
+import TimeAgo from 'javascript-time-ago'
+
+import en from 'javascript-time-ago/locale/en'
+import hr from 'javascript-time-ago/locale/hr'
+import hu from 'javascript-time-ago/locale/hu'
+
+TimeAgo.addDefaultLocale(en)
+TimeAgo.addLocale(hr)
+TimeAgo.addLocale(hu)
+
 
 function App() {
     return (

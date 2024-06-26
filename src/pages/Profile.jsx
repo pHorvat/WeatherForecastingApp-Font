@@ -2,11 +2,13 @@ import React, { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Typography, Box, Card, CardContent, CardActions, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { AuthContext } from '../components/Auth/AuthContext'; // Adjust the import path as required
+import { AuthContext } from '../components/Auth/AuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faMapMarkerAlt, faUser, faUserEdit } from "@fortawesome/free-solid-svg-icons";
+import {useTranslation} from "react-i18next";
+import {useNavigate} from "react-router-dom";
 
 const useStyles = makeStyles({
     profileCard: {
@@ -44,8 +46,14 @@ const Profile = () => {
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [editFormData, setEditFormData] = useState({ name: '', lastName: '', email: '', username: '' });
     const classes = useStyles();
+    const { t } = useTranslation();
+    const navigate = useNavigate();
 
     useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token){
+            navigate('/login')
+        }
         fetchUserData();
     }, []);
 
@@ -71,7 +79,7 @@ const Profile = () => {
         try {
             await axios.put(`http://localhost:4449/users/${user.id}`, {
                 name: editFormData.name,
-                surname: editFormData.lastName, // Use `surname` instead of `lastName`
+                surname: editFormData.lastName,
                 email: editFormData.email,
                 username: editFormData.username
             }, {
@@ -86,10 +94,6 @@ const Profile = () => {
         }
     };
 
-    if (!user) {
-        return <Typography variant="h6">Loading...</Typography>;
-    }
-
     return (
         <Container>
             <ToastContainer />
@@ -97,37 +101,39 @@ const Profile = () => {
                 <Card elevation={3} className={classes.profileCard}>
                     <CardContent className={classes.cardContent}>
                         <Typography variant="h4" gutterBottom>
-                            <FontAwesomeIcon icon={faUser} className={classes.icon} /> {user.name} {user.lastName}
+                            <FontAwesomeIcon icon={faUser} className={classes.icon} /> {user?.name} {user?.lastName}
                         </Typography>
                         <Typography variant="h6" color="textSecondary" gutterBottom>
-                            <FontAwesomeIcon icon={faMapMarkerAlt} className={classes.icon} /> {user.location_id.name}, {user.location_id.country}
+                            <FontAwesomeIcon icon={faMapMarkerAlt} className={classes.icon} /> {user?.location_id.name}, {user?.location_id.country}
                         </Typography>
                         <Typography variant="h6" color="textSecondary" gutterBottom>
-                            <FontAwesomeIcon icon={faEnvelope} className={classes.icon} /> {user.email}
+                            <FontAwesomeIcon icon={faEnvelope} className={classes.icon} /> {user?.email}
                         </Typography>
-                        <Typography variant="h6" color="textSecondary">
-                            <FontAwesomeIcon icon={faUserEdit} className={classes.icon} /> {user.roles.join(', ')}
-                        </Typography>
+                        {user?.roles.includes('ROLE_ADMIN') &&
+                            <Typography variant="h6" color="textSecondary">
+                                <FontAwesomeIcon icon={faUserEdit} className={classes.icon} /> ROLE ADMIN
+                            </Typography>
+                        }
                     </CardContent>
                     <CardActions className={classes.button}>
                         <Button size="large" color="primary" onClick={handleEditOpen}>
-                            Edit Profile
+                            {t('edit_profile')}
                         </Button>
                     </CardActions>
                 </Card>
             </Box>
             <Dialog open={editModalOpen} onClose={handleEditClose}>
-                <DialogTitle>Edit Profile</DialogTitle>
+                <DialogTitle>{t('edit_profile')}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Update your profile information below.
+                        {t('edit_profile_text')}
                     </DialogContentText>
                     <TextField
                         autoFocus
                         margin="dense"
                         id="name"
                         name="name"
-                        label="Name"
+                        label={t('name')}
                         type="text"
                         fullWidth
                         value={editFormData.name}
@@ -138,7 +144,7 @@ const Profile = () => {
                         margin="dense"
                         id="lastName"
                         name="lastName"
-                        label="Last Name"
+                        label={t('last_name')}
                         type="text"
                         fullWidth
                         value={editFormData.lastName}
@@ -149,7 +155,7 @@ const Profile = () => {
                         margin="dense"
                         id="email"
                         name="email"
-                        label="Email"
+                        label={t('email')}
                         type="email"
                         fullWidth
                         value={editFormData.email}
@@ -160,7 +166,7 @@ const Profile = () => {
                         margin="dense"
                         id="username"
                         name="username"
-                        label="Username"
+                        label={t('username')}
                         type="text"
                         fullWidth
                         value={editFormData.username}
@@ -170,10 +176,10 @@ const Profile = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleEditClose} color="secondary">
-                        Cancel
+                        {t('cancel')}
                     </Button>
                     <Button onClick={handleEditSubmit} color="primary">
-                        Save
+                        {t('save')}
                     </Button>
                 </DialogActions>
             </Dialog>
