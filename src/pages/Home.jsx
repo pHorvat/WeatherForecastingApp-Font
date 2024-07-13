@@ -11,6 +11,7 @@ import i18n from "i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCloudRain, faCloudSunRain, faTemperatureHigh, faTemperatureLow} from "@fortawesome/free-solid-svg-icons";
 import backgroundImage from '../pexels-brett-sayles-1431822.jpg';
+import {toast, ToastContainer} from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -67,6 +68,7 @@ const Home = () => {
         document.body.style.backgroundSize = 'cover';
         //document.body.style.backgroundPosition = 'center';
         document.body.style.backgroundRepeat = 'no-repeat';
+        setLangLocale(i18n.language)
 
         return () => {
             document.body.style.backgroundImage = '';
@@ -114,6 +116,7 @@ const Home = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             await fetchUserData();
+            toast.success('Location updated!')
         } catch (error) {
             console.error('Error updating location:', error);
         }
@@ -164,6 +167,7 @@ const Home = () => {
 
     return (
         <>
+            <ToastContainer/>
             <Sidebar onSelectCity={handleSelectCity} userLocationId={userLocation?.id} />
             <div className={classes.root}>
                 <Container className={classes.card}>

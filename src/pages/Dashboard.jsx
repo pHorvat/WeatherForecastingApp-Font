@@ -21,7 +21,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faUserGear} from "@fortawesome/free-solid-svg-icons";
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -77,15 +81,16 @@ const Dashboard = () => {
         const fetchUsers = async () => {
             try {
                 const token = localStorage.getItem('token');
-                if (!token){
-                    navigate('/login')
+                if (!token) {
+                    navigate('/login');
+                    return;
                 }
                 const response = await axios.get('http://localhost:4449/users', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setUsers(response.data);
-                console.log(response.data)
             } catch (error) {
+                toast.error(`Error fetching users: ${error.message}`);
                 console.error('Error fetching users:', error);
             }
         };
@@ -117,23 +122,25 @@ const Dashboard = () => {
                 );
                 setWeather(weatherData);
             } catch (error) {
+                toast.error(`Error fetching locations: ${error.message}`);
                 console.error('Error fetching locations:', error);
             }
         };
 
         fetchUsers();
         fetchLocations();
-    }, []);
+    }, [navigate]);
 
     const handleDeleteUser = async userId => {
-        console.log(userId)
         try {
             const token = localStorage.getItem('token');
             await axios.delete(`http://localhost:4449/users/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setUsers(users.filter(user => user.id !== userId));
+            toast.success('User deleted successfully!');
         } catch (error) {
+            toast.error(`Error deleting user: ${error.message}`);
             console.error(`Error deleting user ${userId}:`, error);
         }
     };
@@ -145,7 +152,9 @@ const Dashboard = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setLocations(locations.filter(location => location.id !== locationId));
+            toast.success('Location deleted successfully!');
         } catch (error) {
+            toast.error(`Error deleting location: ${error.message}`);
             console.error(`Error deleting location ${locationId}:`, error);
         }
     };
@@ -168,7 +177,7 @@ const Dashboard = () => {
         setSurname(user.lastName);
         setUsername(user.username);
         setEmail(user.email);
-        setPassword(''); // Leave password blank or handle it differently
+        setPassword('');
     };
 
     const handleOpenLocationModal = () => {
@@ -209,12 +218,15 @@ const Dashboard = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setUsers(users.map(user => user.id === selectedUserId ? { ...user, ...updatedUser } : user));
+                toast.success('User updated successfully!');
             } else {
                 const newUser = { name, surname, password, username, email, isAdmin: 1 };
                 const response = await axios.post('http://localhost:4449/auth/register', newUser, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setUsers([...users, newUser]);
+                setUsers([...users, response.data]);
+
+                toast.success('User added successfully!');
             }
             setModalOpen(false);
             setName('');
@@ -223,6 +235,7 @@ const Dashboard = () => {
             setUsername('');
             setEmail('');
         } catch (error) {
+            toast.error(isEditing ? `Error updating user: ${error.message}` : `Error adding user: ${error.message}`);
             console.error(isEditing ? 'Error updating user' : 'Error adding new user', error);
         }
     };
@@ -237,12 +250,14 @@ const Dashboard = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setLocations(locations.map(location => location.id === selectedLocationId ? { ...location, ...updatedLocation } : location));
+                toast.success('Location updated successfully!');
             } else {
                 const newLocation = { name: locationName, latitude, longitude, country };
                 const response = await axios.post('http://localhost:4449/locations/create', newLocation, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setLocations([...locations, response.data]);
+                toast.success('Location added successfully!');
             }
             setLocationModalOpen(false);
             setLocationName('');
@@ -250,12 +265,14 @@ const Dashboard = () => {
             setLongitude('');
             setCountry('');
         } catch (error) {
+            toast.error(isEditing ? `Error updating location: ${error.message}` : `Error adding location: ${error.message}`);
             console.error(isEditing ? 'Error updating location' : 'Error adding new location', error);
         }
     };
 
     return (
         <div className={classes.root}>
+            <ToastContainer />
             <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h6" className={classes.header}>
@@ -278,8 +295,12 @@ const Dashboard = () => {
                         <React.Fragment key={user.id}>
                             <ListItem>
                                 <ListItemText
-                                    primary={`${user.name} ${user.lastName} - ${t('username')}: ${user.username}`}
-                                    secondary={`${t('email')}: ${user.email} - ${t('location')}: ${user.location_id?.name}, ${user.location_id?.country}`}
+                                    primary={
+                                        <>
+                                            {`${user.name} ${user.lastName} - ${t('username')}: ${user.username} `}
+                                            {user.roles.includes('ROLE_ADMIN') && <FontAwesomeIcon icon={faUserGear} />}
+                                        </>
+                                    }                                    secondary={`${t('email')}: ${user.email} - ${t('location')}: ${user.location_id?.name}, ${user.location_id?.country}`}
                                 />
                                 <ListItemSecondaryAction>
                                     <IconButton edge="end" aria-label="edit" onClick={() => handleOpenEditModal(user)}>
