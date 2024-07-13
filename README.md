@@ -1,8 +1,14 @@
-# React + Vite
+# Weather Forecasting App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+The Weather Forecasting App is a web application that provides weather forecasts for different locations. Built with React and Vite, the app offers a smooth and fast user experience. Users can view current weather conditions, switch between multiple languages, and manage their profiles.
 
-Currently, two official plugins are available:
+## Features
+- **Real-time Weather Data**: Get up-to-date weather information for your selected location.
+- **Multi-language Support**: Switch between different languages including English, Croatian, and Hungarian.
+- **User Authentication**: Register and log in to manage your preferences.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Technologies Used
+- **React**: A JavaScript library for building user interfaces.
+- **Vite**: A fast build tool for modern web projects.
+- **i18next**: Internationalization framework for translating the app.
